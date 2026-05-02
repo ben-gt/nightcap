@@ -29,10 +29,10 @@ const headingFont = createInterFont({
     7: '700',
   },
   face: {
-    400: { normal: 'Inter-Regular' },
-    500: { normal: 'Inter-Medium' },
-    600: { normal: 'Inter-SemiBold' },
-    700: { normal: 'Inter-Bold' },
+    400: { normal: 'Fraunces-Regular' },
+    500: { normal: 'Fraunces-Medium' },
+    600: { normal: 'Fraunces-SemiBold' },
+    700: { normal: 'Fraunces-Bold' },
   },
 });
 
@@ -60,24 +60,26 @@ const bodyFont = createInterFont({
   },
 });
 
+// "Outback Modern" tokens — warm cream, terracotta, eucalyptus, burnt umber
 const tokens = createTokens({
   ...defaultTokens,
   color: {
-    bg: '#0B1220',
-    bgElevated: '#141D32',
-    bgElevatedHi: '#1C2742',
-    border: '#243049',
-    textHi: '#F5EEDC',
-    textMid: '#B8C0D0',
-    textLo: '#6B7389',
-    accent: '#E8A530',
-    accentHi: '#FFC04D',
-    accentMuted: '#3A2D12',
-    success: '#4ADE80',
-    warning: '#FBBF24',
-    danger: '#F87171',
-    white: '#F5EEDC',
-    black: '#000000',
+    bg: '#F4ECDA',
+    bgElevated: '#FAF4E6',
+    bgElevatedHi: '#FFFFFF',
+    border: '#E2D5BB',
+    textHi: '#2A2622',
+    textMid: '#5C3A21',
+    textLo: '#8C7461',
+    accent: '#C56B3E',
+    accentHi: '#D88457',
+    accentMuted: '#F4D9C5',
+    eucalyptus: '#3F5641',
+    success: '#3F5641',
+    warning: '#D49A3A',
+    danger: '#B53A2A',
+    white: '#FFFFFF',
+    black: '#2A2622',
     transparent: 'transparent',
   },
   space: {
@@ -112,7 +114,7 @@ const tokens = createTokens({
   },
 });
 
-const darkTheme = {
+const lightTheme = {
   background: tokens.color.bg,
   backgroundHover: tokens.color.bgElevatedHi,
   backgroundPress: tokens.color.bgElevatedHi,
@@ -129,30 +131,50 @@ const darkTheme = {
   borderColorFocus: tokens.color.accent,
   borderColorPress: tokens.color.border,
   placeholderColor: tokens.color.textLo,
-  shadowColor: tokens.color.black,
-  shadowColorHover: tokens.color.black,
-  shadowColorPress: tokens.color.black,
-  shadowColorFocus: tokens.color.black,
+  shadowColor: '#5C3A21',
+  shadowColorHover: '#5C3A21',
+  shadowColorPress: '#5C3A21',
+  shadowColorFocus: '#5C3A21',
 };
 
 const config = createTamagui({
   tokens,
   themes: {
-    dark: darkTheme,
-    dark_accent: {
-      ...darkTheme,
+    light: lightTheme,
+    light_accent: {
+      ...lightTheme,
       background: tokens.color.accent,
       backgroundHover: tokens.color.accentHi,
       backgroundPress: tokens.color.accentMuted,
-      color: tokens.color.bg,
+      color: tokens.color.white,
+    },
+    light_elevated: {
+      ...lightTheme,
+      background: tokens.color.bgElevated,
+      backgroundHover: tokens.color.bgElevatedHi,
+    },
+    light_accentMuted: {
+      ...lightTheme,
+      background: tokens.color.accentMuted,
+      color: tokens.color.accent,
+    },
+    // Keep dark aliases pointing at the same light theme so any stray
+    // `Theme name="dark"` in the tree still renders something valid.
+    dark: lightTheme,
+    dark_accent: {
+      ...lightTheme,
+      background: tokens.color.accent,
+      backgroundHover: tokens.color.accentHi,
+      backgroundPress: tokens.color.accentMuted,
+      color: tokens.color.white,
     },
     dark_elevated: {
-      ...darkTheme,
+      ...lightTheme,
       background: tokens.color.bgElevated,
       backgroundHover: tokens.color.bgElevatedHi,
     },
     dark_accentMuted: {
-      ...darkTheme,
+      ...lightTheme,
       background: tokens.color.accentMuted,
       color: tokens.color.accent,
     },
