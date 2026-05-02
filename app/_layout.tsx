@@ -53,6 +53,7 @@ export default function RootLayout() {
               <Stack.Screen name="booking/[id]" options={{ title: 'Book' }} />
               <Stack.Screen name="confirmation/[id]" options={{ title: 'Confirmed', headerBackVisible: false }} />
               <Stack.Screen name="admin" options={{ headerShown: false }} />
+              <Stack.Screen name="auth/callback" options={{ headerShown: false }} />
             </Stack>
           </AuthProvider>
         </Theme>

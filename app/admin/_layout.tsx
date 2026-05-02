@@ -4,7 +4,7 @@ import AuthGate from '@/components/AuthGate';
 
 export default function AdminLayout() {
   return (
-    <AuthGate>
+    <AuthGate requireAdmin>
       <Stack
         screenOptions={{
           headerStyle: { backgroundColor: Colors.secondary },
@@ -18,6 +18,7 @@ export default function AdminLayout() {
         <Stack.Screen name="listings/[id]" options={{ title: 'Edit Listing' }} />
         <Stack.Screen name="listings/new" options={{ title: 'New Listing' }} />
         <Stack.Screen name="bookings" options={{ title: 'All Bookings' }} />
+        <Stack.Screen name="users" options={{ title: 'Users & Roles' }} />
       </Stack>
     </AuthGate>
   );

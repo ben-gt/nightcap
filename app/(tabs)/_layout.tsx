@@ -8,7 +8,7 @@ const TAB_ICON_SIZE = 24;
 
 export default function TabLayout() {
   const user = useStore((s) => s.user);
-  const isVendor = user?.isVendor ?? false;
+  const canAccessVendor = !!user && (user.isVendor || user.isAdmin);
 
   return (
     <Tabs
@@ -66,8 +66,8 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => (
             <Ionicons name="storefront" size={TAB_ICON_SIZE} color={color} />
           ),
-          // TODO: re-enable vendor gating once roles are wired up
-          // href: isVendor ? undefined : null,
+          // Hide the tab entirely from non-vendor / non-admin users
+          href: canAccessVendor ? undefined : null,
         }}
       />
       <Tabs.Screen

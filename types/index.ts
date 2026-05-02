@@ -126,6 +126,8 @@ export interface PaymentIntent {
   status: 'pending' | 'succeeded' | 'failed';
 }
 
+export type Role = 'admin' | 'vendor';
+
 export interface UserProfile {
   id: string;
   name: string;
@@ -135,6 +137,11 @@ export interface UserProfile {
   identityStatus: 'unverified' | 'pending' | 'verified';
   paymentStatus: 'none' | 'pending' | 'active';
   paymentLast4?: string;
+  /** Authoritative role list. */
+  roles: Role[];
+  /** Convenience flag, derived from roles. Kept for backward-compat. */
   isVendor: boolean;
+  /** Convenience flag, derived from roles. */
+  isAdmin: boolean;
   createdAt: string;
 }

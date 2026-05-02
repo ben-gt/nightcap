@@ -8,6 +8,7 @@ import {
   Alert,
   Platform,
 } from 'react-native';
+import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useStore } from '@/store';
 import { useAuth } from '@/contexts/auth';
@@ -85,6 +86,7 @@ export default function ProfileScreen() {
   const updateUser = useStore((s) => s.updateUser);
   const bookings = useStore((s) => s.bookings);
   const { login, logout, isLoading, authError } = useAuth();
+  const router = useRouter();
 
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(user?.name ?? '');
@@ -317,6 +319,26 @@ export default function ProfileScreen() {
           </View>
         </View>
       </View>
+
+      {/* Admin shortcut (admin-only) */}
+      {user.isAdmin && (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Admin</Text>
+          <View style={styles.navCard}>
+            <NavRow
+              icon="shield-checkmark-outline"
+              label="Admin dashboard"
+              onPress={() => router.push('/admin')}
+            />
+            <View style={styles.navDivider} />
+            <NavRow
+              icon="people-outline"
+              label="Users & roles"
+              onPress={() => router.push('/admin/users')}
+            />
+          </View>
+        </View>
+      )}
 
       {/* Navigation rows */}
       <View style={styles.section}>

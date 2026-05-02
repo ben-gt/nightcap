@@ -62,6 +62,12 @@ export default function AdminDashboardScreen() {
         subtitle="Create a new property"
         onPress={() => router.push('/admin/listings/new')}
       />
+      <AdminMenuItem
+        icon="people-outline"
+        label="Users & Roles"
+        subtitle="Grant or revoke admin / vendor access"
+        onPress={() => router.push('/admin/users')}
+      />
 
       <Pressable style={styles.backLink} onPress={() => router.replace('/')}>
         <Text style={styles.backLinkText}>← Back to Guest View</Text>
