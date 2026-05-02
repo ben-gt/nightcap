@@ -87,8 +87,10 @@ export default function MapPeekBar({ listings, onListingPress }: MapPeekBarProps
     }),
   ).current;
 
-  const toggleHandleTap = () => {
-    setSnap((s) => (s === 'peek' ? 'half' : 'peek'));
+  // Tap cycles through peek → half → full → peek. This is the primary interaction;
+  // drag is a nice-to-have, but tap works reliably on every platform.
+  const cycleSnap = () => {
+    setSnap((s) => (s === 'peek' ? 'half' : s === 'half' ? 'full' : 'peek'));
   };
 
   const count = listings.length;
@@ -100,13 +102,13 @@ export default function MapPeekBar({ listings, onListingPress }: MapPeekBarProps
   return (
     <Animated.View style={[styles.sheet, { height: animH }]}>
       {/* Drag handle + summary header */}
-      <Pressable onPress={toggleHandleTap} style={styles.handleArea} {...panResponder.panHandlers}>
+      <Pressable onPress={cycleSnap} style={styles.handleArea} {...panResponder.panHandlers}>
         <View style={styles.grabBar} />
         <View style={styles.summaryRow}>
           <Text style={styles.summaryText}>{summary}</Text>
-          {snap !== 'peek' && (
-            <Text style={styles.summaryHint}>{snap === 'full' ? 'Drag down to collapse' : 'Drag up for full list'}</Text>
-          )}
+          <Text style={styles.summaryHint}>
+            {snap === 'peek' ? 'Tap to expand' : snap === 'half' ? 'Tap for full list' : 'Tap to collapse'}
+          </Text>
         </View>
       </Pressable>
 

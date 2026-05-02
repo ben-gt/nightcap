@@ -351,7 +351,8 @@ const styles = StyleSheet.create({
   },
   recenterButton: {
     position: 'absolute',
-    bottom: Spacing.lg,
+    // Lifted to clear the peek bar at its 56px collapsed height (plus breathing room)
+    bottom: 72,
     left: Spacing.md,
     width: 44,
     height: 44,
