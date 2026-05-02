@@ -444,7 +444,8 @@ const styles = StyleSheet.create({
   signedOutTitle: {
     color: Colors.textHi,
     fontSize: FontSize.h1,
-    fontWeight: '700',
+    fontFamily: 'Fraunces-SemiBold',
+    fontWeight: '600',
   },
   signedOutCopy: {
     color: Colors.textMid,
@@ -480,14 +481,16 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.md,
   },
   avatarInitials: {
-    color: Colors.bg,
+    color: Colors.white,
     fontSize: FontSize.xl,
-    fontWeight: '700',
+    fontFamily: 'Fraunces-SemiBold',
+    fontWeight: '600',
   },
   userName: {
     color: Colors.textHi,
     fontSize: FontSize.xl,
-    fontWeight: '700',
+    fontFamily: 'Fraunces-SemiBold',
+    fontWeight: '600',
   },
   userEmail: {
     color: Colors.textMid,
@@ -513,7 +516,8 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: Colors.textHi,
     fontSize: FontSize.h2,
-    fontWeight: '700',
+    fontFamily: 'Fraunces-SemiBold',
+    fontWeight: '600',
     marginBottom: Spacing.sm,
   },
   editLink: {

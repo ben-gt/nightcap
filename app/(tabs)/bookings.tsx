@@ -477,7 +477,8 @@ const styles = StyleSheet.create({
   dateDay: {
     color: Colors.textHi,
     fontSize: FontSize.h1,
-    fontWeight: '700',
+    fontFamily: 'Fraunces-SemiBold',
+    fontWeight: '600',
     lineHeight: 28,
   },
   dateMonth: {
@@ -595,7 +596,8 @@ const styles = StyleSheet.create({
   signedOutTitle: {
     color: Colors.textHi,
     fontSize: FontSize.h1,
-    fontWeight: '700',
+    fontFamily: 'Fraunces-SemiBold',
+    fontWeight: '600',
     textAlign: 'center',
   },
   signedOutText: {
@@ -614,7 +616,8 @@ const styles = StyleSheet.create({
   emptyTitle: {
     color: Colors.textHi,
     fontSize: FontSize.h1,
-    fontWeight: '700',
+    fontFamily: 'Fraunces-SemiBold',
+    fontWeight: '600',
     marginBottom: Spacing.sm,
   },
   emptyText: {

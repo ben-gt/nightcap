@@ -391,7 +391,8 @@ const styles = StyleSheet.create({
   name: {
     color: Colors.textHi,
     fontSize: FontSize.h1,
-    fontWeight: '700',
+    fontFamily: 'Fraunces-SemiBold',
+    fontWeight: '600',
     marginBottom: Spacing.xs,
     lineHeight: 32,
   },
@@ -628,7 +629,8 @@ const styles = StyleSheet.create({
   footerPriceText: {
     color: Colors.textHi,
     fontSize: FontSize.h1,
-    fontWeight: '800',
+    fontFamily: 'Fraunces-SemiBold',
+    fontWeight: '600',
   },
   footerPriceUnit: {
     color: Colors.textMid,

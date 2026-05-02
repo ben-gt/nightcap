@@ -74,7 +74,7 @@ function createYouAreHereIcon(L: any) {
     className: 'rr-marker rr-you',
     html: `<div style="
       width: 16px; height: 16px;
-      background: #3b82f6;
+      background: #C56B3E;
       border: 3px solid white;
       border-radius: 50%;
       box-shadow: 0 0 0 6px rgba(59,130,246,0.25), 0 2px 8px rgba(0,0,0,0.4);

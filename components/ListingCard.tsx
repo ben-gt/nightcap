@@ -144,13 +144,13 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: 'rgba(0, 0, 0, 0.45)',
+    backgroundColor: 'rgba(255, 255, 255, 0.85)',
     alignItems: 'center',
     justifyContent: 'center',
   },
   heartIcon: {
     fontSize: 20,
-    color: Colors.textHi,
+    color: Colors.textMid,
     lineHeight: 24,
   },
   heartIconSaved: {
@@ -186,7 +186,8 @@ const styles = StyleSheet.create({
   name: {
     color: Colors.textHi,
     fontSize: FontSize.lg,
-    fontWeight: '700',
+    fontFamily: 'Fraunces-SemiBold',
+    fontWeight: '600',
     marginBottom: Spacing.xxs,
   },
   roomType: {
@@ -219,7 +220,8 @@ const styles = StyleSheet.create({
   price: {
     color: Colors.accent,
     fontSize: FontSize.lg,
-    fontWeight: '700',
+    fontFamily: 'Fraunces-SemiBold',
+    fontWeight: '600',
   },
   perNight: {
     color: Colors.textMid,
@@ -227,7 +229,7 @@ const styles = StyleSheet.create({
     fontWeight: '400',
   },
   rating: {
-    color: Colors.warning,
+    color: Colors.accent,
     fontSize: FontSize.sm,
     fontWeight: '600',
   },

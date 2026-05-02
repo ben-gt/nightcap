@@ -23,6 +23,10 @@ export default function RootLayout() {
     'Inter-Medium': require('../assets/fonts/Inter-Medium.ttf'),
     'Inter-SemiBold': require('../assets/fonts/Inter-SemiBold.ttf'),
     'Inter-Bold': require('../assets/fonts/Inter-Bold.ttf'),
+    'Fraunces-Regular': require('../assets/fonts/Fraunces-Regular.ttf'),
+    'Fraunces-Medium': require('../assets/fonts/Fraunces-Medium.ttf'),
+    'Fraunces-SemiBold': require('../assets/fonts/Fraunces-SemiBold.ttf'),
+    'Fraunces-Bold': require('../assets/fonts/Fraunces-Bold.ttf'),
   });
 
   useEffect(() => {
@@ -35,15 +39,15 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <TamaguiProvider config={config} defaultTheme="dark">
-        <Theme name="dark">
+      <TamaguiProvider config={config} defaultTheme="light">
+        <Theme name="light">
           <AuthProvider>
-            <StatusBar style="light" />
+            <StatusBar style="dark" />
             <Stack
               screenOptions={{
-                headerStyle: { backgroundColor: Colors.bgElevated },
+                headerStyle: { backgroundColor: Colors.bg },
                 headerTintColor: Colors.textHi,
-                headerTitleStyle: { fontWeight: '700', fontFamily: 'Inter-Bold' },
+                headerTitleStyle: { fontWeight: '600', fontFamily: 'Fraunces-SemiBold' },
                 contentStyle: { backgroundColor: Colors.bg },
                 animation: 'slide_from_right',
               }}

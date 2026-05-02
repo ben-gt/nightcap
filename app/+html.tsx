@@ -11,9 +11,9 @@ export default function Root({ children }: PropsWithChildren) {
 
         {/* PWA */}
         <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#0B1220" />
+        <meta name="theme-color" content="#F4ECDA" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="Roadside Rooms" />
 
         {/* Icons */}
@@ -35,7 +35,7 @@ export default function Root({ children }: PropsWithChildren) {
             height: 100%;
             margin: 0;
             padding: 0;
-            background-color: #0B1220;
+            background-color: #F4ECDA;
           }
           .rr-marker {
             background: none !important;

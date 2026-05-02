@@ -161,7 +161,8 @@ const styles = StyleSheet.create({
   statValue: {
     color: Colors.accent,
     fontSize: FontSize.xxl,
-    fontWeight: '700',
+    fontFamily: 'Fraunces-SemiBold',
+    fontWeight: '600',
   },
   statLabel: {
     color: Colors.textMuted,
