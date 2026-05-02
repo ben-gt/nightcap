@@ -8,7 +8,8 @@ const TAB_ICON_SIZE = 24;
 
 export default function TabLayout() {
   const user = useStore((s) => s.user);
-  const isVendor = user?.isVendor ?? false;
+  const isSignedIn = !!user;
+  const canAccessVendor = !!user && (user.isVendor || user.isAdmin);
 
   return (
     <Tabs
@@ -19,10 +20,15 @@ export default function TabLayout() {
           backgroundColor: Colors.bgElevated,
           borderTopWidth: 1,
           borderTopColor: Colors.border,
+          height: 64,
+          paddingTop: 6,
+          paddingBottom: 8,
         },
-        headerStyle: { backgroundColor: Colors.bgElevated },
+        headerStyle: { backgroundColor: Colors.bg },
         headerTintColor: Colors.textHi,
-        headerTitleStyle: { fontWeight: '700' },
+        headerTitleStyle: { fontWeight: '600', fontFamily: 'Fraunces-SemiBold' },
+        headerShadowVisible: false,
+        headerTitleAlign: 'center',
       }}
     >
       <Tabs.Screen
@@ -31,8 +37,8 @@ export default function TabLayout() {
           title: '',
           headerTitle: () => (
             <Image
-              source={require('@/assets/images/icon.png')}
-              style={{ width: 160, height: 44, resizeMode: 'contain' }}
+              source={require('@/assets/images/logo-horizontal.png')}
+              style={{ width: 188, height: 28, resizeMode: 'contain' }}
             />
           ),
           tabBarLabel: 'Explore',
@@ -57,6 +63,8 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => (
             <Ionicons name="receipt" size={TAB_ICON_SIZE} color={color} />
           ),
+          // Sign-in is the gate for personal data; hide the tab when signed out.
+          href: isSignedIn ? undefined : null,
         }}
       />
       <Tabs.Screen
@@ -66,8 +74,8 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => (
             <Ionicons name="storefront" size={TAB_ICON_SIZE} color={color} />
           ),
-          // TODO: re-enable vendor gating once roles are wired up
-          // href: isVendor ? undefined : null,
+          // Hide the tab entirely from non-vendor / non-admin users
+          href: canAccessVendor ? undefined : null,
         }}
       />
       <Tabs.Screen

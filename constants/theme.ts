@@ -1,44 +1,54 @@
+// Roadside Rooms — "Outback Modern" theme
+// Warm, earthy palette inspired by Australian outback dawn light.
+// Sand & clay tones, terracotta primary, eucalyptus secondary, burnt umber text.
 export const Colors = {
-  // Backgrounds
-  bg: '#0B1220',
-  bgElevated: '#141D32',
-  bgElevatedHi: '#1C2742',
+  // Backgrounds (warm cream hierarchy, light theme)
+  bg: '#F4ECDA',          // page background — warm sand cream
+  bgElevated: '#FAF4E6',  // cards / elevated surfaces — slightly lighter
+  bgElevatedHi: '#FFFFFF',// modals / highest elevation — clean white
 
-  // Legacy aliases (mapped to new tokens for migration)
-  primary: '#141D32',
-  secondary: '#1C2742',
-  background: '#0B1220',
-  surface: '#141D32',
-  surfaceLight: '#1C2742',
+  // Legacy aliases (kept so existing imports keep working)
+  primary: '#FAF4E6',
+  secondary: '#FFFFFF',
+  background: '#F4ECDA',
+  surface: '#FAF4E6',
+  surfaceLight: '#FFFFFF',
 
-  // Accent (logo gold)
-  accent: '#E8A530',
-  accentHi: '#FFC04D',
-  accentMuted: '#3A2D12',
-  accentLight: '#FFC04D',
+  // Accent — terracotta clay (primary brand color)
+  accent: '#C56B3E',
+  accentHi: '#D88457',     // hover / pressed-up
+  accentMuted: '#F4D9C5',  // very soft tint for backgrounds (pills, avatar bg)
+  accentLight: '#D88457',
 
-  // Text (cream hierarchy)
-  textHi: '#F5EEDC',
-  textMid: '#B8C0D0',
-  textLo: '#6B7389',
-  text: '#F5EEDC',
-  textSecondary: '#B8C0D0',
-  textMuted: '#6B7389',
+  // Secondary accent — deep eucalyptus
+  eucalyptus: '#3F5641',
+  eucalyptusMuted: '#D4DCD2',
+
+  // Tertiary accent — soft dawn peach (highlights)
+  highlight: '#F0C9A4',
+
+  // Text (burnt-umber hierarchy on warm cream)
+  textHi: '#2A2622',       // primary text — warm near-black
+  textMid: '#5C3A21',      // secondary — burnt umber
+  textLo: '#8C7461',       // tertiary — muted clay
+  text: '#2A2622',
+  textSecondary: '#5C3A21',
+  textMuted: '#8C7461',
 
   // Border
-  border: '#243049',
+  border: '#E2D5BB',       // soft sand border, sits on bg
 
-  // Semantic
-  success: '#4ADE80',
-  warning: '#FBBF24',
-  danger: '#F87171',
-  error: '#F87171',
+  // Semantic — tuned to fit the warm palette
+  success: '#3F5641',      // eucalyptus stands in as a positive signal
+  warning: '#D49A3A',      // amber, warmer than gold
+  danger: '#B53A2A',       // deep brick red
+  error: '#B53A2A',
 
   // Utilities
-  white: '#F5EEDC',
+  white: '#FFFFFF',
   black: '#000000',
-  overlay: 'rgba(0, 0, 0, 0.6)',
-  blue: '#3b82f6',
+  overlay: 'rgba(42, 38, 34, 0.55)', // warm overlay instead of pure black
+  blue: '#3F5641',         // remap stray blue refs to eucalyptus
 };
 
 export const Spacing = {
@@ -89,26 +99,38 @@ export const BorderRadius = {
   full: 9999,
 };
 
+// Font families — Inter for body/UI, Fraunces (serif) for headings & wordmarks
+export const Fonts = {
+  body: 'Inter-Regular',
+  bodyMedium: 'Inter-Medium',
+  bodySemiBold: 'Inter-SemiBold',
+  bodyBold: 'Inter-Bold',
+  serif: 'Fraunces-Regular',
+  serifMedium: 'Fraunces-Medium',
+  serifSemiBold: 'Fraunces-SemiBold',
+  serifBold: 'Fraunces-Bold',
+};
+
 export const Shadows = {
   sm: {
-    shadowColor: '#000',
+    shadowColor: '#5C3A21',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.08,
     shadowRadius: 2,
     elevation: 2,
   },
   md: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
+    shadowColor: '#5C3A21',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.10,
+    shadowRadius: 8,
     elevation: 4,
   },
   lg: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 12,
+    shadowColor: '#5C3A21',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.14,
+    shadowRadius: 16,
     elevation: 8,
   },
 } as const;

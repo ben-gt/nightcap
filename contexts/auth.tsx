@@ -4,6 +4,7 @@ import * as WebBrowser from 'expo-web-browser';
 import { Platform } from 'react-native';
 import { useStore } from '@/store';
 import { saveTokens, loadTokens, clearTokens, isTokenExpired } from '@/lib/token-storage';
+import { resolveRoles, rememberUser, ROLES_CLAIM, type Role } from '@/lib/roles';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -19,12 +20,18 @@ const discovery: AuthSession.DiscoveryDocument = {
   endSessionEndpoint: `https://${AUTH0_DOMAIN}/v2/logout`,
 };
 
-const redirectUri = AuthSession.makeRedirectUri({
-  scheme: 'roadsiderooms',
-  path: 'auth/callback',
-});
+// On web, Auth0 needs a real https URL to redirect back to. Native uses the
+// custom scheme. expo-auth-session's makeRedirectUri handles this if we don't
+// force a scheme on web.
+const redirectUri =
+  Platform.OS === 'web'
+    ? AuthSession.makeRedirectUri({ path: 'auth/callback' })
+    : AuthSession.makeRedirectUri({ scheme: 'roadsiderooms', path: 'auth/callback' });
 
-console.log('[Auth] redirectUri:', redirectUri);
+if (Platform.OS === 'web' && typeof console !== 'undefined') {
+  // eslint-disable-next-line no-console
+  console.log('[Auth] redirectUri:', redirectUri);
+}
 
 interface AuthContextValue {
   isAuthenticated: boolean;
@@ -33,6 +40,8 @@ interface AuthContextValue {
   login: () => Promise<void>;
   logout: () => Promise<void>;
   getAccessToken: () => Promise<string | null>;
+  /** Force-refresh the current user's roles from local store + claim. */
+  refreshRoles: () => void;
 }
 
 const AuthContext = createContext<AuthContextValue>({
@@ -42,6 +51,7 @@ const AuthContext = createContext<AuthContextValue>({
   login: async () => {},
   logout: async () => {},
   getAccessToken: async () => null,
+  refreshRoles: () => {},
 });
 
 export function useAuth() {
@@ -67,6 +77,34 @@ async function refreshAccessToken(refreshToken: string): Promise<AuthSession.Tok
   return tokenRes;
 }
 
+function profileToUser(profile: any) {
+  // Custom-claim role list, if your Auth0 Action emits one
+  const claimRoles = profile?.[ROLES_CLAIM];
+
+  rememberUser({ sub: profile.sub, email: profile.email, name: profile.name });
+
+  const roles: Role[] = resolveRoles({
+    sub: profile.sub,
+    email: profile.email,
+    name: profile.name ?? profile.nickname,
+    claimRoles,
+  });
+
+  return {
+    id: profile.sub,
+    name: profile.name ?? profile.nickname ?? '',
+    email: profile.email ?? '',
+    phone: '',
+    avatarUrl: profile.picture ?? undefined,
+    identityStatus: profile.email_verified ? ('verified' as const) : ('unverified' as const),
+    paymentStatus: 'none' as const,
+    roles,
+    isVendor: roles.includes('vendor'),
+    isAdmin: roles.includes('admin'),
+    createdAt: new Date().toISOString(),
+  };
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [authError, setAuthError] = useState<string | null>(null);
@@ -76,6 +114,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const setUser = useStore((s) => s.setUser);
   const clearUser = useStore((s) => s.clearUser);
+  const updateUser = useStore((s) => s.updateUser);
   const user = useStore((s) => s.user);
 
   const [request, result, promptAsync] = AuthSession.useAuthRequest(
@@ -109,17 +148,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           expiresAtRef.current = stored.expiresAt;
 
           const profile = await fetchUserProfile(stored.accessToken);
-          setUser({
-            id: profile.sub,
-            name: profile.name ?? profile.nickname ?? '',
-            email: profile.email ?? '',
-            phone: '',
-            avatarUrl: profile.picture ?? undefined,
-            identityStatus: profile.email_verified ? 'verified' : 'unverified',
-            paymentStatus: 'none',
-            isVendor: profile[`${AUTH0_AUDIENCE}/roles`]?.includes('vendor') ?? false,
-            createdAt: new Date().toISOString(),
-          });
+          setUser(profileToUser(profile));
         } else {
           // Access token expired — try refresh
           const tokenRes = await refreshAccessToken(stored.refreshToken);
@@ -135,17 +164,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           );
 
           const profile = await fetchUserProfile(tokenRes.accessToken);
-          setUser({
-            id: profile.sub,
-            name: profile.name ?? profile.nickname ?? '',
-            email: profile.email ?? '',
-            phone: '',
-            avatarUrl: profile.picture ?? undefined,
-            identityStatus: profile.email_verified ? 'verified' : 'unverified',
-            paymentStatus: 'none',
-            isVendor: profile[`${AUTH0_AUDIENCE}/roles`]?.includes('vendor') ?? false,
-            createdAt: new Date().toISOString(),
-          });
+          setUser(profileToUser(profile));
         }
       } catch (e) {
         console.warn('Session hydration failed, clearing tokens:', e);
@@ -155,6 +174,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setIsLoading(false);
       }
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Handle auth code exchange after login redirect
@@ -196,18 +216,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         );
 
         const profile = await fetchUserProfile(tokenRes.accessToken);
-
-        setUser({
-          id: profile.sub,
-          name: profile.name ?? profile.nickname ?? '',
-          email: profile.email ?? '',
-          phone: '',
-          avatarUrl: profile.picture ?? undefined,
-          identityStatus: profile.email_verified ? 'verified' : 'unverified',
-          paymentStatus: 'none',
-          isVendor: profile[`${AUTH0_AUDIENCE}/roles`]?.includes('vendor') ?? false,
-          createdAt: new Date().toISOString(),
-        });
+        setUser(profileToUser(profile));
       } catch (e) {
         console.error('Auth token exchange failed:', e);
         setAuthError('Login failed. Please try again.');
@@ -285,6 +294,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [clearUser]);
 
+  // Re-resolve roles from local storage + claim (used after admin role edits)
+  const refreshRoles = useCallback(() => {
+    if (!user) return;
+    const roles = resolveRoles({
+      sub: user.id,
+      email: user.email,
+      name: user.name,
+      // No claim available without re-fetching profile; that's fine — local
+      // assignment changes (made by an admin) take effect immediately.
+    });
+    updateUser({
+      roles,
+      isVendor: roles.includes('vendor'),
+      isAdmin: roles.includes('admin'),
+    });
+  }, [user, updateUser]);
+
   return (
     <AuthContext.Provider
       value={{
@@ -294,6 +320,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login,
         logout,
         getAccessToken,
+        refreshRoles,
       }}
     >
       {children}

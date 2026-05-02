@@ -4,8 +4,8 @@ import { Colors, Spacing, BorderRadius } from '@/constants/theme';
 import { Listing } from '@/types';
 import { useStore } from '@/store';
 
-// Dark tile layer — matches the app's dark theme
-const TILE_URL = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+// Warm-tinted light tile layer — Voyager has soft sepia tones that pair well with the cream palette
+const TILE_URL = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
 const ATTRIBUTION =
   '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>';
 
@@ -30,14 +30,62 @@ const DARK_THEME_CSS = `
   }
 `;
 
+export interface MapBounds {
+  north: number;
+  south: number;
+  east: number;
+  west: number;
+}
+
 interface MapProps {
   listings: Listing[];
   onMarkerPress: (listing: Listing) => void;
+  onBoundsChange?: (bounds: MapBounds) => void;
   initialCenter?: [number, number];
   initialZoom?: number;
 }
 
 const GEOLOCATION_ZOOM = 9;
+const FIT_PADDING: [number, number] = [60, 60];
+const MAX_FIT_ZOOM = 11;
+const CLUSTER_RADIUS_KM = 250; // grouping radius for the densest-cluster fallback
+
+function haversineKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const toRad = (d: number) => (d * Math.PI) / 180;
+  const R = 6371;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+/** Find the densest cluster of listings (greedy: pick the listing with most neighbours within radius). */
+function findDensestCluster(listings: Listing[]): Listing[] {
+  if (listings.length === 0) return [];
+  let best: Listing[] = [listings[0]];
+  for (const seed of listings) {
+    const group = listings.filter(
+      (l) => haversineKm(seed.latitude, seed.longitude, l.latitude, l.longitude) <= CLUSTER_RADIUS_KM
+    );
+    if (group.length > best.length) best = group;
+  }
+  return best;
+}
+
+/** Find the cluster of listings nearest to a given point (seed = closest listing, then group within radius). */
+function findNearestCluster(listings: Listing[], lat: number, lon: number): Listing[] {
+  if (listings.length === 0) return [];
+  const seed = [...listings].sort(
+    (a, b) =>
+      haversineKm(lat, lon, a.latitude, a.longitude) -
+      haversineKm(lat, lon, b.latitude, b.longitude)
+  )[0];
+  return listings.filter(
+    (l) => haversineKm(seed.latitude, seed.longitude, l.latitude, l.longitude) <= CLUSTER_RADIUS_KM
+  );
+}
 
 function createPriceIcon(L: any, price: number, available: boolean) {
   const bg = available ? Colors.bgElevated : Colors.bgElevated;
@@ -74,7 +122,7 @@ function createYouAreHereIcon(L: any) {
     className: 'rr-marker rr-you',
     html: `<div style="
       width: 16px; height: 16px;
-      background: #3b82f6;
+      background: #C56B3E;
       border: 3px solid white;
       border-radius: 50%;
       box-shadow: 0 0 0 6px rgba(59,130,246,0.25), 0 2px 8px rgba(0,0,0,0.4);
@@ -95,10 +143,15 @@ function injectDarkThemeCSS() {
 export default function Map({
   listings,
   onMarkerPress,
+  onBoundsChange,
   initialCenter = [-30.0, 135.0],
   initialZoom = 5,
 }: MapProps) {
   const mapRef = useRef<any>(null);
+  const onBoundsChangeRef = useRef(onBoundsChange);
+  useEffect(() => {
+    onBoundsChangeRef.current = onBoundsChange;
+  }, [onBoundsChange]);
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const userMarkerRef = useRef<any>(null);
   const userLocationRef = useRef<{ latitude: number; longitude: number } | null>(null);
@@ -142,13 +195,28 @@ export default function Map({
         zoomControl: false,
       }).setView(initialCenter, initialZoom);
 
-      // Dark tiles
+      // Hide Leaflet's default 'Leaflet' prefix (also removes Ukrainian flag emoji)
+      map.attributionControl.setPrefix(false);
+
+      // Warm light tiles
       L.tileLayer(TILE_URL, { attribution: ATTRIBUTION, maxZoom: 19 }).addTo(map);
 
       // Zoom control — top right
       L.control.zoom({ position: 'topright' }).addTo(map);
 
-      // Geolocate
+      // Geolocate — fit map to user + nearest listings; fall back to densest cluster if unavailable
+      const fitToCluster = () => {
+        if (!mounted) return;
+        const cluster = findDensestCluster(listings);
+        if (cluster.length === 0) return;
+        if (cluster.length === 1) {
+          map.setView([cluster[0].latitude, cluster[0].longitude], GEOLOCATION_ZOOM);
+          return;
+        }
+        const bounds = L.latLngBounds(cluster.map((l) => [l.latitude, l.longitude]));
+        map.fitBounds(bounds, { padding: FIT_PADDING, maxZoom: MAX_FIT_ZOOM });
+      };
+
       if ('geolocation' in navigator) {
         navigator.geolocation.getCurrentPosition(
           (pos) => {
@@ -156,17 +224,32 @@ export default function Map({
             const { latitude, longitude } = pos.coords;
             setUserLocation({ latitude, longitude });
             userLocationRef.current = { latitude, longitude };
-            map.setView([latitude, longitude], GEOLOCATION_ZOOM);
 
+            // Show user pin
             userMarkerRef.current = L.marker([latitude, longitude], {
               icon: createYouAreHereIcon(L),
               interactive: false,
               zIndexOffset: 1000,
             }).addTo(map);
+
+            // Fit bounds to user + the nearest cluster of listings so both are visible
+            const nearestCluster = findNearestCluster(listings, latitude, longitude);
+            if (nearestCluster.length > 0) {
+              const points: [number, number][] = [
+                [latitude, longitude],
+                ...nearestCluster.map((l) => [l.latitude, l.longitude] as [number, number]),
+              ];
+              const bounds = L.latLngBounds(points);
+              map.fitBounds(bounds, { padding: FIT_PADDING, maxZoom: MAX_FIT_ZOOM });
+            } else {
+              map.setView([latitude, longitude], GEOLOCATION_ZOOM);
+            }
           },
-          () => {},
+          () => fitToCluster(),
           { enableHighAccuracy: false, timeout: 8000, maximumAge: 300000 }
         );
+      } else {
+        fitToCluster();
       }
 
       // Add listing markers
@@ -179,6 +262,30 @@ export default function Map({
         }
         marker.bindTooltip(listing.name, { direction: 'top', offset: [0, -14] });
       });
+
+      // Emit bounds whenever the user pans / zooms
+      map.on('moveend zoomend', () => {
+        if (!mounted) return;
+        const b = map.getBounds();
+        onBoundsChangeRef.current?.({
+          north: b.getNorth(),
+          south: b.getSouth(),
+          east: b.getEast(),
+          west: b.getWest(),
+        });
+      });
+
+      // Emit initial bounds once tiles settle
+      setTimeout(() => {
+        if (!mounted) return;
+        const b = map.getBounds();
+        onBoundsChangeRef.current?.({
+          north: b.getNorth(),
+          south: b.getSouth(),
+          east: b.getEast(),
+          west: b.getWest(),
+        });
+      }, 300);
 
       mapRef.current = map;
       setLeaflet(L);
@@ -244,8 +351,9 @@ const styles = StyleSheet.create({
   },
   recenterButton: {
     position: 'absolute',
-    bottom: Spacing.lg,
-    right: Spacing.md,
+    // Lifted to clear the peek bar at its 56px collapsed height (plus breathing room)
+    bottom: 72,
+    left: Spacing.md,
     width: 44,
     height: 44,
     borderRadius: BorderRadius.full,
@@ -259,6 +367,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 4,
     elevation: 4,
+    // @ts-ignore — web-only; ensures button sits above Leaflet panes (which use z-index 200-700)
+    zIndex: 1000,
   },
   recenterPressed: {
     backgroundColor: Colors.bgElevatedHi,

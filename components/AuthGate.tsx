@@ -9,9 +9,10 @@ import { Ionicons } from '@expo/vector-icons';
 interface AuthGateProps {
   children: React.ReactNode;
   requireVendor?: boolean;
+  requireAdmin?: boolean;
 }
 
-export default function AuthGate({ children, requireVendor }: AuthGateProps) {
+export default function AuthGate({ children, requireVendor, requireAdmin }: AuthGateProps) {
   const { isAuthenticated, isLoading, login, authError } = useAuth();
   const user = useStore((s) => s.user);
   const router = useRouter();
@@ -53,7 +54,26 @@ export default function AuthGate({ children, requireVendor }: AuthGateProps) {
     );
   }
 
-  if (requireVendor && !user?.isVendor) {
+  if (requireAdmin && !user?.isAdmin) {
+    return (
+      <View style={styles.centered}>
+        <Ionicons name="shield" size={32} color={Colors.textLo} />
+        <Text style={styles.title}>Admin access only</Text>
+        <Text style={styles.subtitle}>
+          This area is restricted to administrators.
+        </Text>
+        <Button
+          title="Go Back"
+          variant="ghost"
+          size="sm"
+          onPress={() => router.back()}
+          style={{ marginTop: Spacing.lg }}
+        />
+      </View>
+    );
+  }
+
+  if (requireVendor && !user?.isVendor && !user?.isAdmin) {
     return (
       <View style={styles.centered}>
         <Ionicons name="storefront" size={32} color={Colors.textLo} />

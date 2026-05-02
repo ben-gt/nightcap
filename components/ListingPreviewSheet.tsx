@@ -162,8 +162,8 @@ const styles = StyleSheet.create({
   name: {
     color: Colors.textHi,
     fontSize: FontSize.lg,
-    fontWeight: '700',
-    fontFamily: 'Inter-Bold',
+    fontWeight: '600',
+    fontFamily: 'Fraunces-SemiBold',
     marginBottom: 2,
   },
   address: {
@@ -178,15 +178,15 @@ const styles = StyleSheet.create({
   price: {
     color: Colors.accent,
     fontSize: FontSize.lg,
-    fontWeight: '700',
-    fontFamily: 'Inter-Bold',
+    fontWeight: '600',
+    fontFamily: 'Fraunces-SemiBold',
   },
   perNight: {
     color: Colors.textMid,
     fontSize: FontSize.label,
   },
   rating: {
-    color: Colors.warning,
+    color: Colors.accent,
     fontSize: FontSize.label,
     fontWeight: '600',
     fontFamily: 'Inter-SemiBold',

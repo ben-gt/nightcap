@@ -163,7 +163,8 @@ const styles = StyleSheet.create({
   successTitle: {
     color: Colors.text,
     fontSize: FontSize.xxl,
-    fontWeight: '700',
+    fontFamily: 'Fraunces-SemiBold',
+    fontWeight: '600',
     marginBottom: Spacing.xs,
   },
   successSubtitle: {

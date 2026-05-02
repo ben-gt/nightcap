@@ -7,7 +7,9 @@ import {
   Pressable,
   Alert,
   Platform,
+  Image,
 } from 'react-native';
+import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useStore } from '@/store';
 import { useAuth } from '@/contexts/auth';
@@ -85,6 +87,7 @@ export default function ProfileScreen() {
   const updateUser = useStore((s) => s.updateUser);
   const bookings = useStore((s) => s.bookings);
   const { login, logout, isLoading, authError } = useAuth();
+  const router = useRouter();
 
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(user?.name ?? '');
@@ -95,9 +98,13 @@ export default function ProfileScreen() {
   if (!user) {
     return (
       <View style={[styles.container, styles.centered]}>
-        {/* Logo mark */}
+        {/* Logo mark — sun-on-horizon */}
         <View style={styles.logoMark}>
-          <Ionicons name="moon" size={36} color={Colors.accent} />
+          <Image
+            source={require('../../assets/images/icon-mark.png')}
+            style={{ width: 96, height: 96 }}
+            resizeMode="contain"
+          />
         </View>
 
         <Text style={styles.signedOutTitle}>Roadside Rooms</Text>
@@ -105,12 +112,19 @@ export default function ProfileScreen() {
           Save favourites, manage bookings,{'\n'}unlock rooms.
         </Text>
 
+        <Pressable
+          onPress={() => router.push('/how-it-works')}
+          style={{ marginTop: Spacing.md }}
+        >
+          <Text style={styles.howItWorksLink}>See how Roadside Rooms works →</Text>
+        </Pressable>
+
         <Button
           title="Sign In"
           onPress={login}
           loading={isLoading}
           size="lg"
-          style={{ marginTop: Spacing.xl, alignSelf: 'stretch' }}
+          style={{ marginTop: Spacing.lg, alignSelf: 'stretch' }}
         />
 
         {authError && (
@@ -131,7 +145,12 @@ export default function ProfileScreen() {
   // ── Signed-in helpers ─────────────────────────────────────────────
   const identity = identityLabels[user.identityStatus];
   const payment = paymentLabels[user.paymentStatus];
-  const myBookingsCount = bookings.filter((b) => b.status !== 'cancelled').length;
+  const userEmail = user.email.toLowerCase();
+  const myBookingsCount = bookings.filter(
+    (b) =>
+      b.status !== 'cancelled' &&
+      b.guestEmail.toLowerCase() === userEmail,
+  ).length;
 
   function handleSave() {
     updateUser({ name: name.trim(), email: email.trim(), phone: phone.trim() });
@@ -318,6 +337,26 @@ export default function ProfileScreen() {
         </View>
       </View>
 
+      {/* Admin shortcut (admin-only) */}
+      {user.isAdmin && (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Admin</Text>
+          <View style={styles.navCard}>
+            <NavRow
+              icon="shield-checkmark-outline"
+              label="Admin dashboard"
+              onPress={() => router.push('/admin')}
+            />
+            <View style={styles.navDivider} />
+            <NavRow
+              icon="people-outline"
+              label="Users & roles"
+              onPress={() => router.push('/admin/users')}
+            />
+          </View>
+        </View>
+      )}
+
       {/* Navigation rows */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Settings</Text>
@@ -347,6 +386,12 @@ export default function ProfileScreen() {
           />
           <View style={styles.navDivider} />
           <NavRow
+            icon="information-circle-outline"
+            label="How it works"
+            onPress={() => router.push('/how-it-works')}
+          />
+          <View style={styles.navDivider} />
+          <NavRow
             icon="help-circle-outline"
             label="Help"
             onPress={() =>
@@ -357,9 +402,7 @@ export default function ProfileScreen() {
           <NavRow
             icon="document-text-outline"
             label="Terms"
-            onPress={() =>
-              confirmAction('Terms', 'Terms and conditions coming soon.', () => {})
-            }
+            onPress={() => router.push('/terms')}
           />
           <View style={styles.navDivider} />
           <NavRow
@@ -406,10 +449,6 @@ const styles = StyleSheet.create({
 
   // ── Logo mark (signed-out) ──────────────────────────────────────
   logoMark: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: Colors.accentMuted,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: Spacing.lg,
@@ -417,7 +456,8 @@ const styles = StyleSheet.create({
   signedOutTitle: {
     color: Colors.textHi,
     fontSize: FontSize.h1,
-    fontWeight: '700',
+    fontFamily: 'Fraunces-SemiBold',
+    fontWeight: '600',
   },
   signedOutCopy: {
     color: Colors.textMid,
@@ -427,6 +467,11 @@ const styles = StyleSheet.create({
     marginTop: Spacing.sm,
   },
   createAccountLink: {
+    color: Colors.accent,
+    fontSize: FontSize.label,
+    fontWeight: '600',
+  },
+  howItWorksLink: {
     color: Colors.accent,
     fontSize: FontSize.label,
     fontWeight: '600',
@@ -453,14 +498,16 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.md,
   },
   avatarInitials: {
-    color: Colors.bg,
+    color: Colors.white,
     fontSize: FontSize.xl,
-    fontWeight: '700',
+    fontFamily: 'Fraunces-SemiBold',
+    fontWeight: '600',
   },
   userName: {
     color: Colors.textHi,
     fontSize: FontSize.xl,
-    fontWeight: '700',
+    fontFamily: 'Fraunces-SemiBold',
+    fontWeight: '600',
   },
   userEmail: {
     color: Colors.textMid,
@@ -486,7 +533,8 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: Colors.textHi,
     fontSize: FontSize.h2,
-    fontWeight: '700',
+    fontFamily: 'Fraunces-SemiBold',
+    fontWeight: '600',
     marginBottom: Spacing.sm,
   },
   editLink: {
