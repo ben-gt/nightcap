@@ -329,6 +329,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 4,
     elevation: 4,
+    // @ts-ignore — web-only; ensures button sits above Leaflet panes (which use z-index 200-700)
+    zIndex: 1000,
   },
   recenterPressed: {
     backgroundColor: Colors.bgElevatedHi,
