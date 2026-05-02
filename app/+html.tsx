@@ -1,0 +1,49 @@
+import { ScrollViewStyleReset } from 'expo-router/html';
+import type { PropsWithChildren } from 'react';
+
+export default function Root({ children }: PropsWithChildren) {
+  return (
+    <html lang="en">
+      <head>
+        <meta charSet="utf-8" />
+        <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+
+        {/* PWA */}
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#0B1220" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="Roadside Rooms" />
+
+        {/* Icons */}
+        <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon.png" />
+        <link rel="apple-touch-icon" href="/assets/images/icon.png" />
+
+        {/* Leaflet CSS */}
+        <link
+          rel="stylesheet"
+          href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+          crossOrigin=""
+        />
+
+        <ScrollViewStyleReset />
+
+        <style dangerouslySetInnerHTML={{ __html: `
+          html, body, #root {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background-color: #0B1220;
+          }
+          .rr-marker {
+            background: none !important;
+            border: none !important;
+          }
+        `}} />
+      </head>
+      <body>{children}</body>
+    </html>
+  );
+}
