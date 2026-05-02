@@ -4,8 +4,8 @@ import { Colors, Spacing, BorderRadius } from '@/constants/theme';
 import { Listing } from '@/types';
 import { useStore } from '@/store';
 
-// Dark tile layer — matches the app's dark theme
-const TILE_URL = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+// Warm-tinted light tile layer — Voyager has soft sepia tones that pair well with the cream palette
+const TILE_URL = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
 const ATTRIBUTION =
   '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>';
 
@@ -142,7 +142,10 @@ export default function Map({
         zoomControl: false,
       }).setView(initialCenter, initialZoom);
 
-      // Dark tiles
+      // Hide Leaflet's default 'Leaflet' prefix (also removes Ukrainian flag emoji)
+      map.attributionControl.setPrefix(false);
+
+      // Warm light tiles
       L.tileLayer(TILE_URL, { attribution: ATTRIBUTION, maxZoom: 19 }).addTo(map);
 
       // Zoom control — top right

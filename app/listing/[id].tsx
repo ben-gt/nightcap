@@ -119,7 +119,7 @@ export default function ListingDetailScreen() {
               )}
             </View>
             <View style={styles.ratingBadge}>
-              <Ionicons name="star" size={13} color={Colors.warning} style={{ marginRight: 3 }} />
+              <Ionicons name="star" size={13} color={Colors.accent} style={{ marginRight: 3 }} />
               <Text style={styles.ratingText}>{listing.rating}</Text>
               <Text style={styles.reviewCountText}> ({listing.reviewCount})</Text>
             </View>
@@ -231,7 +231,7 @@ export default function ListingDetailScreen() {
             <View style={styles.reviewsHeader}>
               <Text style={styles.sectionTitle}>Reviews</Text>
               <View style={styles.reviewsSummary}>
-                <Ionicons name="star" size={14} color={Colors.warning} style={{ marginRight: 3 }} />
+                <Ionicons name="star" size={14} color={Colors.accent} style={{ marginRight: 3 }} />
                 <Text style={styles.reviewsSummaryText}>
                   {listing.rating} ({listing.reviewCount} reviews)
                 </Text>
