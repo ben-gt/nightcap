@@ -20,10 +20,14 @@ export default function TabLayout() {
           backgroundColor: Colors.bgElevated,
           borderTopWidth: 1,
           borderTopColor: Colors.border,
+          height: 64,
+          paddingTop: 6,
+          paddingBottom: 8,
         },
-        headerStyle: { backgroundColor: Colors.bgElevated },
+        headerStyle: { backgroundColor: Colors.bg },
         headerTintColor: Colors.textHi,
-        headerTitleStyle: { fontWeight: '700' },
+        headerTitleStyle: { fontWeight: '600', fontFamily: 'Fraunces-SemiBold' },
+        headerShadowVisible: false,
       }}
     >
       <Tabs.Screen
@@ -32,8 +36,8 @@ export default function TabLayout() {
           title: '',
           headerTitle: () => (
             <Image
-              source={require('@/assets/images/icon.png')}
-              style={{ width: 160, height: 44, resizeMode: 'contain' }}
+              source={require('@/assets/images/logo-horizontal.png')}
+              style={{ width: 180, height: 40, resizeMode: 'contain' }}
             />
           ),
           tabBarLabel: 'Explore',

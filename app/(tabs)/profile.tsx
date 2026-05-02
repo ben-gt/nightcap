@@ -7,6 +7,7 @@ import {
   Pressable,
   Alert,
   Platform,
+  Image,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -97,9 +98,13 @@ export default function ProfileScreen() {
   if (!user) {
     return (
       <View style={[styles.container, styles.centered]}>
-        {/* Logo mark */}
+        {/* Logo mark — sun-on-horizon */}
         <View style={styles.logoMark}>
-          <Ionicons name="moon" size={36} color={Colors.accent} />
+          <Image
+            source={require('../../assets/images/icon.png')}
+            style={{ width: 80, height: 80 }}
+            resizeMode="contain"
+          />
         </View>
 
         <Text style={styles.signedOutTitle}>Roadside Rooms</Text>
@@ -433,10 +438,10 @@ const styles = StyleSheet.create({
 
   // ── Logo mark (signed-out) ──────────────────────────────────────
   logoMark: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: Colors.accentMuted,
+    width: 96,
+    height: 96,
+    borderRadius: BorderRadius.lg,
+    overflow: 'hidden',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: Spacing.lg,
