@@ -66,6 +66,7 @@ export default function Root({ children }: PropsWithChildren) {
             color: #5C3A21 !important;
             font-size: 10px !important;
             padding: 2px 6px !important;
+            border-top-left-radius: 6px !important;
           }
           .leaflet-control-attribution a {
             color: #C56B3E !important;

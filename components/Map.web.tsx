@@ -315,7 +315,7 @@ const styles = StyleSheet.create({
   recenterButton: {
     position: 'absolute',
     bottom: Spacing.lg,
-    right: Spacing.md,
+    left: Spacing.md,
     width: 44,
     height: 44,
     borderRadius: BorderRadius.full,
