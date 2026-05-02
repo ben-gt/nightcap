@@ -60,6 +60,12 @@ export default function WelcomeScreen() {
             please review how the service works before you continue.
           </Text>
 
+          <Link href="/how-it-works" asChild>
+            <Pressable style={({ pressed }) => [styles.termsLink, pressed && styles.pressed]}>
+              <Text style={styles.termsLinkText}>See how Roadside Rooms works →</Text>
+            </Pressable>
+          </Link>
+
           <Link href="/terms" asChild>
             <Pressable style={({ pressed }) => [styles.termsLink, pressed && styles.pressed]}>
               <Text style={styles.termsLinkText}>Read the Terms &amp; Conditions →</Text>

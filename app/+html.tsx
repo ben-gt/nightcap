@@ -28,14 +28,33 @@ export default function Root({ children }: PropsWithChildren) {
           crossOrigin=""
         />
 
+        {/* Web fonts — Fraunces (display) + Inter (body). Native uses bundled TTFs via expo-font. */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap"
+        />
+
         <ScrollViewStyleReset />
 
         <style dangerouslySetInnerHTML={{ __html: `
+          /* expo-font on web gives us font-family names like 'Fraunces-SemiBold'. The browser
+             only knows about 'Fraunces' (loaded from Google Fonts above), so any element styled
+             with a hyphenated name falls back to Times. Fix it by globally remapping any element
+             whose inline style references those names to the real Google Fonts family. */
+          [style*="Fraunces"] {
+            font-family: 'Fraunces', Georgia, serif !important;
+          }
+          [style*="Inter"] {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+          }
           html, body, #root {
             height: 100%;
             margin: 0;
             padding: 0;
             background-color: #F4ECDA;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
           }
           .rr-marker {
             background: none !important;

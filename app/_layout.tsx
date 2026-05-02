@@ -27,6 +27,7 @@ function TermsGate() {
     const exempt =
       pathname === '/welcome' ||
       pathname === '/terms' ||
+      pathname === '/how-it-works' ||
       pathname.startsWith('/auth');
     if (exempt) return;
     let accepted = false;
@@ -89,6 +90,7 @@ export default function RootLayout() {
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
               <Stack.Screen name="welcome" options={{ headerShown: false }} />
               <Stack.Screen name="terms" options={{ title: 'Terms & Conditions' }} />
+              <Stack.Screen name="how-it-works" options={{ title: 'How it works' }} />
               <Stack.Screen name="listing/[id]" options={{ title: 'Details' }} />
               <Stack.Screen name="booking/[id]" options={{ title: 'Book' }} />
               <Stack.Screen name="confirmation/[id]" options={{ title: 'Confirmed', headerBackVisible: false }} />

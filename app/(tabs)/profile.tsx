@@ -112,12 +112,19 @@ export default function ProfileScreen() {
           Save favourites, manage bookings,{'\n'}unlock rooms.
         </Text>
 
+        <Pressable
+          onPress={() => router.push('/how-it-works')}
+          style={{ marginTop: Spacing.md }}
+        >
+          <Text style={styles.howItWorksLink}>See how Roadside Rooms works →</Text>
+        </Pressable>
+
         <Button
           title="Sign In"
           onPress={login}
           loading={isLoading}
           size="lg"
-          style={{ marginTop: Spacing.xl, alignSelf: 'stretch' }}
+          style={{ marginTop: Spacing.lg, alignSelf: 'stretch' }}
         />
 
         {authError && (
@@ -379,6 +386,12 @@ export default function ProfileScreen() {
           />
           <View style={styles.navDivider} />
           <NavRow
+            icon="information-circle-outline"
+            label="How it works"
+            onPress={() => router.push('/how-it-works')}
+          />
+          <View style={styles.navDivider} />
+          <NavRow
             icon="help-circle-outline"
             label="Help"
             onPress={() =>
@@ -389,9 +402,7 @@ export default function ProfileScreen() {
           <NavRow
             icon="document-text-outline"
             label="Terms"
-            onPress={() =>
-              confirmAction('Terms', 'Terms and conditions coming soon.', () => {})
-            }
+            onPress={() => router.push('/terms')}
           />
           <View style={styles.navDivider} />
           <NavRow
@@ -460,6 +471,11 @@ const styles = StyleSheet.create({
     marginTop: Spacing.sm,
   },
   createAccountLink: {
+    color: Colors.accent,
+    fontSize: FontSize.label,
+    fontWeight: '600',
+  },
+  howItWorksLink: {
     color: Colors.accent,
     fontSize: FontSize.label,
     fontWeight: '600',
