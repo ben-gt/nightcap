@@ -21,7 +21,7 @@ curl -L https://fly.io/install.sh | sh
 flyctl auth login
 
 # Create the app (skip deploying — we want to deploy with build args)
-flyctl launch --no-deploy --copy-config --name nightcap --region syd
+flyctl launch --no-deploy --copy-config --name roadside-rooms --region syd
 # (Pick any region you like; `syd` is closest to AU. Update fly.toml's `app`
 #  field if you choose a different name.)
 

@@ -8,7 +8,7 @@
 # Or just run ./deploy.sh which wraps this.
 
 # NOTE: replace `app` with your real Fly app name after `flyctl launch --no-deploy`.
-app = "nightcap"
+app = "roadside-rooms"
 primary_region = "syd"
 
 [build]

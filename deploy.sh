@@ -8,7 +8,7 @@
 #        curl -L https://fly.io/install.sh | sh
 #        flyctl auth login
 #   3. First time only: create the app
-#        flyctl launch --no-deploy --copy-config --name nightcap --region syd
+#        flyctl launch --no-deploy --copy-config --name roadside-rooms --region syd
 #      (or pick your own name/region; update fly.toml's `app` to match)
 #   4. Run this script:
 #        ./deploy.sh
