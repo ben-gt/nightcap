@@ -47,6 +47,9 @@ export default function WelcomeScreen() {
             style={styles.logo}
             resizeMode="contain"
           />
+          <View style={styles.hookPill}>
+            <Text style={styles.hookText}>Get a Roadie</Text>
+          </View>
           <Text style={styles.tagline}>
             Honest roadside stays across the great Australian outback.
           </Text>
@@ -138,6 +141,21 @@ const styles = StyleSheet.create({
     width: 320,
     height: 56,
     marginBottom: Spacing.md,
+  },
+  hookPill: {
+    backgroundColor: Colors.accentMuted,
+    borderRadius: BorderRadius.full,
+    paddingVertical: 6,
+    paddingHorizontal: Spacing.md,
+    marginBottom: Spacing.md,
+  },
+  hookText: {
+    color: Colors.accent,
+    fontSize: FontSize.sm,
+    fontFamily: 'Fraunces-SemiBold',
+    fontWeight: '700',
+    letterSpacing: 0.5,
+    textTransform: 'uppercase',
   },
   tagline: {
     color: Colors.textMid,
