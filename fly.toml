@@ -1,0 +1,42 @@
+# fly.toml — Fly.io config for the nightcap (Roadside Rooms) Expo web build.
+#
+# Build args are declared here so the Dockerfile can reference them, but the
+# actual values must be passed at deploy time via:
+#   flyctl deploy --build-arg EXPO_PUBLIC_AUTH0_DOMAIN=... \
+#                 --build-arg EXPO_PUBLIC_AUTH0_CLIENT_ID=... \
+#                 --build-arg EXPO_PUBLIC_AUTH0_AUDIENCE=...
+# Or just run ./deploy.sh which wraps this.
+
+# NOTE: replace `app` with your real Fly app name after `flyctl launch --no-deploy`.
+app = "roadside-rooms"
+primary_region = "syd"
+
+[build]
+  dockerfile = "Dockerfile"
+
+  [build.args]
+    # Placeholders so the Dockerfile ARG declarations are satisfied even if
+    # someone forgets to pass --build-arg. Real values come from deploy.sh.
+    EXPO_PUBLIC_AUTH0_DOMAIN = ""
+    EXPO_PUBLIC_AUTH0_CLIENT_ID = ""
+    EXPO_PUBLIC_AUTH0_AUDIENCE = ""
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+  [[http_service.checks]]
+    interval = "30s"
+    timeout = "5s"
+    grace_period = "10s"
+    method = "GET"
+    path = "/healthz"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"
+  cpus = 1
