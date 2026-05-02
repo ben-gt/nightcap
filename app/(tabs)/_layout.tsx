@@ -38,7 +38,7 @@ export default function TabLayout() {
           headerTitle: () => (
             <Image
               source={require('@/assets/images/logo-horizontal.png')}
-              style={{ width: 160, height: 36, resizeMode: 'contain' }}
+              style={{ width: 188, height: 28, resizeMode: 'contain' }}
             />
           ),
           tabBarLabel: 'Explore',
