@@ -133,7 +133,12 @@ export default function ProfileScreen() {
   // ── Signed-in helpers ─────────────────────────────────────────────
   const identity = identityLabels[user.identityStatus];
   const payment = paymentLabels[user.paymentStatus];
-  const myBookingsCount = bookings.filter((b) => b.status !== 'cancelled').length;
+  const userEmail = user.email.toLowerCase();
+  const myBookingsCount = bookings.filter(
+    (b) =>
+      b.status !== 'cancelled' &&
+      b.guestEmail.toLowerCase() === userEmail,
+  ).length;
 
   function handleSave() {
     updateUser({ name: name.trim(), email: email.trim(), phone: phone.trim() });

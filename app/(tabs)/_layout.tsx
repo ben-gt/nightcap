@@ -8,6 +8,7 @@ const TAB_ICON_SIZE = 24;
 
 export default function TabLayout() {
   const user = useStore((s) => s.user);
+  const isSignedIn = !!user;
   const canAccessVendor = !!user && (user.isVendor || user.isAdmin);
 
   return (
@@ -57,6 +58,8 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => (
             <Ionicons name="receipt" size={TAB_ICON_SIZE} color={color} />
           ),
+          // Sign-in is the gate for personal data; hide the tab when signed out.
+          href: isSignedIn ? undefined : null,
         }}
       />
       <Tabs.Screen

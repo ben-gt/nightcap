@@ -9,7 +9,10 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useMemo } from 'react';
+import { Ionicons } from '@expo/vector-icons';
 import { useStore } from '@/store';
+import { useAuth } from '@/contexts/auth';
+import Button from '@/components/ui/Button';
 import { Colors, FontSize, Spacing, BorderRadius } from '@/constants/theme';
 import { Booking, Listing } from '@/types';
 
@@ -87,8 +90,20 @@ function friendlyType(type: string): string {
 
 export default function BookingsScreen() {
   const router = useRouter();
-  const bookings = useStore((s) => s.bookings);
+  const allBookings = useStore((s) => s.bookings);
   const listings = useStore((s) => s.listings);
+  const user = useStore((s) => s.user);
+  const { login, isLoading } = useAuth();
+
+  // Only show this user's bookings. Match by Auth0 email since that's the
+  // only stable identifier on the booking record today. Admins see everything.
+  const bookings = useMemo(() => {
+    if (!user) return [];
+    if (user.isAdmin) return allBookings;
+    const email = user.email.toLowerCase();
+    if (!email) return [];
+    return allBookings.filter((b) => b.guestEmail.toLowerCase() === email);
+  }, [allBookings, user]);
 
   const sections = useMemo(() => {
     const today = new Date();
@@ -119,6 +134,30 @@ export default function BookingsScreen() {
       .filter((key) => buckets[key].length > 0)
       .map((key) => ({ title: key, data: buckets[key] }));
   }, [bookings]);
+
+  // -----------------------------------------------------------------------
+  // Signed-out guard (in case someone hits /bookings directly)
+  // -----------------------------------------------------------------------
+  if (!user) {
+    return (
+      <View style={[styles.container, styles.signedOutContainer]}>
+        <View style={styles.signedOutIcon}>
+          <Ionicons name="receipt-outline" size={32} color={Colors.accent} />
+        </View>
+        <Text style={styles.signedOutTitle}>Sign in to see your stays</Text>
+        <Text style={styles.signedOutText}>
+          Your bookings are tied to your account. Sign in to view, manage, and unlock rooms.
+        </Text>
+        <Button
+          title="Sign In"
+          onPress={login}
+          loading={isLoading}
+          size="lg"
+          style={{ marginTop: Spacing.lg, alignSelf: 'stretch' }}
+        />
+      </View>
+    );
+  }
 
   // -----------------------------------------------------------------------
   // Empty state
@@ -538,6 +577,34 @@ const styles = StyleSheet.create({
   },
 
   // Empty state
+  signedOutContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: Spacing.xl,
+  },
+  signedOutIcon: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: Colors.accentMuted,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: Spacing.lg,
+  },
+  signedOutTitle: {
+    color: Colors.textHi,
+    fontSize: FontSize.h1,
+    fontWeight: '700',
+    textAlign: 'center',
+  },
+  signedOutText: {
+    color: Colors.textMid,
+    fontSize: FontSize.body,
+    textAlign: 'center',
+    marginTop: Spacing.sm,
+    lineHeight: 24,
+  },
   emptyContainer: {
     flex: 1,
     alignItems: 'center',
