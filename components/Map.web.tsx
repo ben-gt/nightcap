@@ -30,9 +30,17 @@ const DARK_THEME_CSS = `
   }
 `;
 
+export interface MapBounds {
+  north: number;
+  south: number;
+  east: number;
+  west: number;
+}
+
 interface MapProps {
   listings: Listing[];
   onMarkerPress: (listing: Listing) => void;
+  onBoundsChange?: (bounds: MapBounds) => void;
   initialCenter?: [number, number];
   initialZoom?: number;
 }
@@ -135,10 +143,15 @@ function injectDarkThemeCSS() {
 export default function Map({
   listings,
   onMarkerPress,
+  onBoundsChange,
   initialCenter = [-30.0, 135.0],
   initialZoom = 5,
 }: MapProps) {
   const mapRef = useRef<any>(null);
+  const onBoundsChangeRef = useRef(onBoundsChange);
+  useEffect(() => {
+    onBoundsChangeRef.current = onBoundsChange;
+  }, [onBoundsChange]);
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const userMarkerRef = useRef<any>(null);
   const userLocationRef = useRef<{ latitude: number; longitude: number } | null>(null);
@@ -249,6 +262,30 @@ export default function Map({
         }
         marker.bindTooltip(listing.name, { direction: 'top', offset: [0, -14] });
       });
+
+      // Emit bounds whenever the user pans / zooms
+      map.on('moveend zoomend', () => {
+        if (!mounted) return;
+        const b = map.getBounds();
+        onBoundsChangeRef.current?.({
+          north: b.getNorth(),
+          south: b.getSouth(),
+          east: b.getEast(),
+          west: b.getWest(),
+        });
+      });
+
+      // Emit initial bounds once tiles settle
+      setTimeout(() => {
+        if (!mounted) return;
+        const b = map.getBounds();
+        onBoundsChangeRef.current?.({
+          north: b.getNorth(),
+          south: b.getSouth(),
+          east: b.getEast(),
+          west: b.getWest(),
+        });
+      }, 300);
 
       mapRef.current = map;
       setLeaflet(L);

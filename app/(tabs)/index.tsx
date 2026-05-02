@@ -1,8 +1,9 @@
 import { useState, useMemo, useCallback } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import Map from '@/components/Map';
+import Map, { MapBounds } from '@/components/Map';
 import ListingPreviewSheet from '@/components/ListingPreviewSheet';
+import MapPeekBar from '@/components/MapPeekBar';
 import { useStore } from '@/store';
 import { Listing } from '@/types';
 import { Colors } from '@/constants/theme';
@@ -23,6 +24,18 @@ export default function ExploreScreen() {
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
 
   const availableListings = useMemo(() => listings.filter((l) => l.available), [listings]);
+  const [bounds, setBounds] = useState<MapBounds | null>(null);
+
+  const visibleListings = useMemo(() => {
+    if (!bounds) return availableListings;
+    return availableListings.filter(
+      (l) =>
+        l.latitude <= bounds.north &&
+        l.latitude >= bounds.south &&
+        l.longitude <= bounds.east &&
+        l.longitude >= bounds.west,
+    );
+  }, [availableListings, bounds]);
 
   const getDistance = useCallback(
     (listing: Listing) => {
@@ -37,7 +50,16 @@ export default function ExploreScreen() {
       <Map
         listings={availableListings}
         onMarkerPress={(listing) => setSelectedListing(listing)}
+        onBoundsChange={setBounds}
       />
+      {!selectedListing && (
+        <View style={styles.peekOverlay} pointerEvents="box-none">
+          <MapPeekBar
+            listings={visibleListings}
+            onListingPress={(listing) => setSelectedListing(listing)}
+          />
+        </View>
+      )}
       {selectedListing && (
         <View style={styles.sheetOverlay}>
           <ListingPreviewSheet
@@ -65,6 +87,12 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.background,
   },
   sheetOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+  },
+  peekOverlay: {
     position: 'absolute',
     bottom: 0,
     left: 0,

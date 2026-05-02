@@ -2,9 +2,17 @@ import { StyleSheet, View, Text } from 'react-native';
 import { Colors, FontSize, Spacing } from '@/constants/theme';
 import { Listing } from '@/types';
 
+export interface MapBounds {
+  north: number;
+  south: number;
+  east: number;
+  west: number;
+}
+
 interface MapProps {
   listings: Listing[];
   onMarkerPress: (listing: Listing) => void;
+  onBoundsChange?: (bounds: MapBounds) => void;
   initialCenter?: [number, number];
   initialZoom?: number;
 }
