@@ -38,6 +38,46 @@ interface MapProps {
 }
 
 const GEOLOCATION_ZOOM = 9;
+const FIT_PADDING: [number, number] = [60, 60];
+const MAX_FIT_ZOOM = 11;
+const CLUSTER_RADIUS_KM = 250; // grouping radius for the densest-cluster fallback
+
+function haversineKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const toRad = (d: number) => (d * Math.PI) / 180;
+  const R = 6371;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+/** Find the densest cluster of listings (greedy: pick the listing with most neighbours within radius). */
+function findDensestCluster(listings: Listing[]): Listing[] {
+  if (listings.length === 0) return [];
+  let best: Listing[] = [listings[0]];
+  for (const seed of listings) {
+    const group = listings.filter(
+      (l) => haversineKm(seed.latitude, seed.longitude, l.latitude, l.longitude) <= CLUSTER_RADIUS_KM
+    );
+    if (group.length > best.length) best = group;
+  }
+  return best;
+}
+
+/** Find the cluster of listings nearest to a given point (seed = closest listing, then group within radius). */
+function findNearestCluster(listings: Listing[], lat: number, lon: number): Listing[] {
+  if (listings.length === 0) return [];
+  const seed = [...listings].sort(
+    (a, b) =>
+      haversineKm(lat, lon, a.latitude, a.longitude) -
+      haversineKm(lat, lon, b.latitude, b.longitude)
+  )[0];
+  return listings.filter(
+    (l) => haversineKm(seed.latitude, seed.longitude, l.latitude, l.longitude) <= CLUSTER_RADIUS_KM
+  );
+}
 
 function createPriceIcon(L: any, price: number, available: boolean) {
   const bg = available ? Colors.bgElevated : Colors.bgElevated;
@@ -151,7 +191,19 @@ export default function Map({
       // Zoom control — top right
       L.control.zoom({ position: 'topright' }).addTo(map);
 
-      // Geolocate
+      // Geolocate — fit map to user + nearest listings; fall back to densest cluster if unavailable
+      const fitToCluster = () => {
+        if (!mounted) return;
+        const cluster = findDensestCluster(listings);
+        if (cluster.length === 0) return;
+        if (cluster.length === 1) {
+          map.setView([cluster[0].latitude, cluster[0].longitude], GEOLOCATION_ZOOM);
+          return;
+        }
+        const bounds = L.latLngBounds(cluster.map((l) => [l.latitude, l.longitude]));
+        map.fitBounds(bounds, { padding: FIT_PADDING, maxZoom: MAX_FIT_ZOOM });
+      };
+
       if ('geolocation' in navigator) {
         navigator.geolocation.getCurrentPosition(
           (pos) => {
@@ -159,17 +211,32 @@ export default function Map({
             const { latitude, longitude } = pos.coords;
             setUserLocation({ latitude, longitude });
             userLocationRef.current = { latitude, longitude };
-            map.setView([latitude, longitude], GEOLOCATION_ZOOM);
 
+            // Show user pin
             userMarkerRef.current = L.marker([latitude, longitude], {
               icon: createYouAreHereIcon(L),
               interactive: false,
               zIndexOffset: 1000,
             }).addTo(map);
+
+            // Fit bounds to user + the nearest cluster of listings so both are visible
+            const nearestCluster = findNearestCluster(listings, latitude, longitude);
+            if (nearestCluster.length > 0) {
+              const points: [number, number][] = [
+                [latitude, longitude],
+                ...nearestCluster.map((l) => [l.latitude, l.longitude] as [number, number]),
+              ];
+              const bounds = L.latLngBounds(points);
+              map.fitBounds(bounds, { padding: FIT_PADDING, maxZoom: MAX_FIT_ZOOM });
+            } else {
+              map.setView([latitude, longitude], GEOLOCATION_ZOOM);
+            }
           },
-          () => {},
+          () => fitToCluster(),
           { enableHighAccuracy: false, timeout: 8000, maximumAge: 300000 }
         );
+      } else {
+        fitToCluster();
       }
 
       // Add listing markers

@@ -28,6 +28,7 @@ export default function TabLayout() {
         headerTintColor: Colors.textHi,
         headerTitleStyle: { fontWeight: '600', fontFamily: 'Fraunces-SemiBold' },
         headerShadowVisible: false,
+        headerTitleAlign: 'center',
       }}
     >
       <Tabs.Screen
@@ -36,8 +37,8 @@ export default function TabLayout() {
           title: '',
           headerTitle: () => (
             <Image
-              source={require('@/assets/images/logo-mark.png')}
-              style={{ width: 64, height: 36, resizeMode: 'contain' }}
+              source={require('@/assets/images/logo-horizontal.png')}
+              style={{ width: 160, height: 36, resizeMode: 'contain' }}
             />
           ),
           tabBarLabel: 'Explore',
