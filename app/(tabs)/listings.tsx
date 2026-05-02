@@ -8,6 +8,7 @@ import {
   TextInput,
   Pressable,
   ScrollView,
+  useWindowDimensions,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import ListingCard from '@/components/ListingCard';
@@ -52,6 +53,8 @@ const ALL_TYPES = Object.keys(typeLabels) as PropertyType[];
 
 export default function ListingsScreen() {
   const router = useRouter();
+  const { width } = useWindowDimensions();
+  const isWide = Platform.OS === 'web' && width >= 768;
   const listings = useStore((s) => s.listings);
   const userLocation = useStore((s) => s.userLocation);
   const setUserLocation = useStore((s) => s.setUserLocation);
@@ -141,7 +144,7 @@ export default function ListingsScreen() {
   return (
     <View style={styles.container}>
       {/* Sticky search bar */}
-      <View style={styles.searchContainer}>
+      <View style={[styles.searchContainer, isWide && styles.centeredRow]}>
         <TextInput
           style={styles.searchInput}
           placeholder="Search by name or address..."
@@ -158,7 +161,7 @@ export default function ListingsScreen() {
       </View>
 
       {/* Filter chips row - separate background, own z-index */}
-      <View style={styles.filterContainer}>
+      <View style={[styles.filterContainer, isWide && styles.centeredRow]}>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -223,7 +226,7 @@ export default function ListingsScreen() {
       <FlatList
         data={results}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.list}
+        contentContainerStyle={[styles.list, isWide && styles.listWide]}
         keyboardShouldPersistTaps="handled"
         renderItem={({ item }) => (
           <ListingCard
@@ -285,7 +288,8 @@ const styles = StyleSheet.create({
     borderBottomColor: Colors.border,
   },
   chipRow: {
-    paddingHorizontal: Spacing.md,
+    paddingLeft: Spacing.md,
+    paddingRight: Spacing.md + Spacing.xs,
     paddingVertical: Spacing.sm,
     gap: Spacing.xs,
     alignItems: 'center',
@@ -327,6 +331,16 @@ const styles = StyleSheet.create({
     padding: Spacing.md,
     paddingTop: Spacing.sm,
     gap: Spacing.md,
+  },
+  listWide: {
+    maxWidth: 760,
+    width: '100%',
+    alignSelf: 'center',
+  },
+  centeredRow: {
+    maxWidth: 760,
+    width: '100%',
+    alignSelf: 'center',
   },
   separator: {
     height: 0,

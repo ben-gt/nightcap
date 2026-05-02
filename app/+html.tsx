@@ -41,6 +41,24 @@ export default function Root({ children }: PropsWithChildren) {
             background: none !important;
             border: none !important;
           }
+          /* Tone down Leaflet attribution to match the warm palette */
+          .leaflet-control-attribution {
+            background-color: rgba(244, 236, 218, 0.85) !important;
+            color: #5C3A21 !important;
+            font-size: 10px !important;
+            padding: 2px 6px !important;
+          }
+          .leaflet-control-attribution a {
+            color: #C56B3E !important;
+            text-decoration: none !important;
+          }
+          .leaflet-control-attribution a:hover {
+            text-decoration: underline !important;
+          }
+          /* Hide Ukrainian flag emoji that ships with default attribution */
+          .leaflet-attribution-flag {
+            display: none !important;
+          }
         `}} />
       </head>
       <body>{children}</body>
