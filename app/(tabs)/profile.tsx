@@ -101,8 +101,8 @@ export default function ProfileScreen() {
         {/* Logo mark — sun-on-horizon */}
         <View style={styles.logoMark}>
           <Image
-            source={require('../../assets/images/icon.png')}
-            style={{ width: 80, height: 80 }}
+            source={require('../../assets/images/icon-mark.png')}
+            style={{ width: 96, height: 96 }}
             resizeMode="contain"
           />
         </View>
@@ -449,10 +449,6 @@ const styles = StyleSheet.create({
 
   // ── Logo mark (signed-out) ──────────────────────────────────────
   logoMark: {
-    width: 96,
-    height: 96,
-    borderRadius: BorderRadius.lg,
-    overflow: 'hidden',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: Spacing.lg,
