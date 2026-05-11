@@ -43,6 +43,7 @@ function deriveListings(properties: Property[]): Listing[] {
         reviewCount: prop.reviewCount,
         type: prop.type,
         roomCount: rt.roomCount,
+        accessCode: rt.accessCode,
       });
     }
   }
@@ -128,7 +129,7 @@ export const useStore = create<AppState>((set, get) => {
         checkOut: formData.checkOut,
         totalPrice: listing.pricePerNight * nights,
         status: 'confirmed',
-        accessCode: generateAccessCode(),
+        accessCode: listing.accessCode?.trim() || generateAccessCode(),
         createdAt: new Date().toISOString(),
       };
 

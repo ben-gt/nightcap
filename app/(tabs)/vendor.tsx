@@ -4,9 +4,18 @@ import { Ionicons } from '@expo/vector-icons';
 import { useStore } from '@/store';
 import ListingCard from '@/components/ListingCard';
 import Button from '@/components/ui/Button';
+import AuthGate from '@/components/AuthGate';
 import { Colors, FontSize, Spacing, BorderRadius } from '@/constants/theme';
 
 export default function VendorScreen() {
+  return (
+    <AuthGate requireVendor>
+      <VendorContent />
+    </AuthGate>
+  );
+}
+
+function VendorContent() {
   const router = useRouter();
   const listings = useStore((s) => s.listings);
   const bookings = useStore((s) => s.bookings);

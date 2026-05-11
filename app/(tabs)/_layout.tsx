@@ -66,8 +66,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => (
             <Ionicons name="storefront" size={TAB_ICON_SIZE} color={color} />
           ),
-          // TODO: re-enable vendor gating once roles are wired up
-          // href: isVendor ? undefined : null,
+          href: isVendor ? undefined : null,
         }}
       />
       <Tabs.Screen

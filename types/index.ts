@@ -32,6 +32,9 @@ export interface RoomType {
   images: string[];
   layout?: string; // optional layout variant label
   available: boolean;
+  // Fixed smart-lock / access code shared with guests after booking.
+  // If empty, the system generates a random code per booking.
+  accessCode?: string;
 }
 
 export interface Property {
@@ -91,6 +94,7 @@ export interface Listing {
   reviewCount: number;
   type: PropertyType;
   roomCount: number;
+  accessCode?: string;
 }
 
 // ── Booking ──

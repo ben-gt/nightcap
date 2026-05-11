@@ -4,7 +4,7 @@ import AuthGate from '@/components/AuthGate';
 
 export default function AdminLayout() {
   return (
-    <AuthGate>
+    <AuthGate requireVendor>
       <Stack
         screenOptions={{
           headerStyle: { backgroundColor: Colors.secondary },

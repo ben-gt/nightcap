@@ -681,6 +681,14 @@ export default function NewListingScreen() {
             )}
           </View>
 
+          <Input
+            label="Smart Lock Access Code"
+            value={editingRoom.accessCode ?? ''}
+            onChangeText={(v) => setEditingRoom({ ...editingRoom, accessCode: v })}
+            placeholder="e.g. 7829 (leave blank to auto-generate per booking)"
+            keyboardType="numeric"
+          />
+
           {/* Availability */}
           <View style={styles.switchRow}>
             <Text style={styles.switchLabel}>Available for Booking</Text>

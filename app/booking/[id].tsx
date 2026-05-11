@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { StyleSheet, View, Text, ScrollView, KeyboardAvoidingView, Platform, Image } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -9,6 +9,12 @@ import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import DateSelector from '@/components/DateSelector';
 import AuthGate from '@/components/AuthGate';
+import {
+  getConflictNights,
+  getUpcomingFullyBookedNights,
+  formatNightShort,
+} from '@/lib/availability';
+import { processBookingPayment } from '@/lib/payments';
 import { Colors, FontSize, Spacing, BorderRadius } from '@/constants/theme';
 
 export default function BookingScreen() {
@@ -23,6 +29,7 @@ function BookingContent() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const listing = useStore((s) => s.listings.find((l) => l.id === id));
+  const bookings = useStore((s) => s.bookings);
   const user = useStore((s) => s.user);
   const addBooking = useStore((s) => s.addBooking);
 
@@ -37,7 +44,18 @@ function BookingContent() {
     guestPhone: user?.phone ?? '',
   });
   const [errors, setErrors] = useState<Partial<BookingFormData>>({});
+  const [paymentError, setPaymentError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const upcomingFullyBooked = useMemo(() => {
+    if (!listing) return [];
+    return getUpcomingFullyBookedNights(listing, bookings, new Date(), 60, 5);
+  }, [listing, bookings]);
+
+  const conflictNights = useMemo(() => {
+    if (!listing) return [];
+    return getConflictNights(listing, bookings, form.checkIn, form.checkOut);
+  }, [listing, bookings, form.checkIn, form.checkOut]);
 
   if (!listing) {
     return (
@@ -59,15 +77,28 @@ function BookingContent() {
     if (!form.guestEmail.trim() || !form.guestEmail.includes('@')) e.guestEmail = 'Valid email required';
     if (!form.guestPhone.trim()) e.guestPhone = 'Phone number required';
     if (new Date(form.checkOut) <= new Date(form.checkIn)) e.checkOut = 'Check-out must be after check-in';
+    if (conflictNights.length > 0) {
+      e.checkOut = `Sold out for ${conflictNights.map(formatNightShort).join(', ')}. Please choose other dates.`;
+    }
     setErrors(e);
     return Object.keys(e).length === 0;
   }
 
   async function handleBook() {
+    setPaymentError(null);
     if (!validate()) return;
     setLoading(true);
-    // Simulate payment — replace with Airwallex
-    await new Promise((r) => setTimeout(r, 1500));
+    const result = await processBookingPayment({
+      amount: total,
+      currency: listing!.currency || 'AUD',
+      description: `${listing!.name} — ${nights} night${nights > 1 ? 's' : ''}`,
+      guestEmail: form.guestEmail,
+    });
+    if (!result.success) {
+      setLoading(false);
+      setPaymentError(result.error ?? 'Payment failed. Please try again.');
+      return;
+    }
     const booking = addBooking(form, listing!);
     setLoading(false);
     router.replace(`/confirmation/${booking.id}`);
@@ -100,6 +131,15 @@ function BookingContent() {
           onChangeCheckOut={(v) => setForm((f) => ({ ...f, checkOut: v }))}
           error={errors.checkOut}
         />
+
+        {upcomingFullyBooked.length > 0 && (
+          <View style={styles.unavailableHint}>
+            <Ionicons name="calendar-outline" size={14} color={Colors.warning} style={{ marginRight: 8 }} />
+            <Text style={styles.unavailableHintText}>
+              Sold out: {upcomingFullyBooked.map(formatNightShort).join(', ')}
+            </Text>
+          </View>
+        )}
 
         {/* Guest details */}
         <Text style={styles.sectionTitle}>Your Details</Text>
@@ -155,10 +195,18 @@ function BookingContent() {
           </Text>
         </View>
 
+        {paymentError && (
+          <View style={styles.paymentError}>
+            <Ionicons name="alert-circle-outline" size={16} color={Colors.danger} style={{ marginRight: 8 }} />
+            <Text style={styles.paymentErrorText}>{paymentError}</Text>
+          </View>
+        )}
+
         <Button
-          title={`Pay $${total} AUD`}
+          title={conflictNights.length > 0 ? 'Sold out for selected dates' : `Pay $${total} AUD`}
           onPress={handleBook}
           loading={loading}
+          disabled={conflictNights.length > 0}
           size="lg"
         />
       </ScrollView>
@@ -279,6 +327,36 @@ const styles = StyleSheet.create({
     color: Colors.textMuted,
     fontSize: FontSize.sm,
     lineHeight: 20,
+    flex: 1,
+  },
+  unavailableHint: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.surfaceLight,
+    padding: Spacing.sm,
+    borderRadius: BorderRadius.md,
+    borderLeftWidth: 3,
+    borderLeftColor: Colors.warning,
+    marginBottom: Spacing.md,
+  },
+  unavailableHintText: {
+    color: Colors.textSecondary,
+    fontSize: FontSize.sm,
+    flex: 1,
+  },
+  paymentError: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.surfaceLight,
+    padding: Spacing.md,
+    borderRadius: BorderRadius.md,
+    borderLeftWidth: 3,
+    borderLeftColor: Colors.danger,
+    marginBottom: Spacing.md,
+  },
+  paymentErrorText: {
+    color: Colors.danger,
+    fontSize: FontSize.sm,
     flex: 1,
   },
 });
